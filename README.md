@@ -229,22 +229,6 @@ To remove volumes (clears database and cache):
 docker-compose -f docker-compose.rag.yml down -v
 ```
 
-## Preparing for GitHub
-
-Before pushing to GitHub, run the cleanup script to remove sensitive data:
-
-```bash
-./scripts/cleanup_for_github.sh
-```
-
-This will:
-- Remove all log files
-- Remove database files
-- Remove backup directories
-- Remove `.env` files (keeps `.env.example`)
-- Remove Python cache and temporary files
-
-**Always review your changes before committing!**
 
 ## License
 
