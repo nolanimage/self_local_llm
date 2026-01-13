@@ -1,0 +1,8 @@
+請將這篇新聞歸類為以下【唯一】一個分類：
+Politics (政治/政府), Finance (財經/經濟), Social (社會/民生), International (國際), Sports (體育), Tech (科技), Health (醫療/健康)
+
+新聞標題：{title}
+內容摘要：{content}
+
+要求：只輸出分類名稱的英文單詞，不要其他解釋。
+分類：

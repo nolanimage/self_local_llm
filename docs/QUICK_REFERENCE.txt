@@ -1,0 +1,67 @@
+╔════════════════════════════════════════════════════════════════╗
+║         🚀 SELF LLM NEWS SEARCH - QUICK REFERENCE              ║
+╚════════════════════════════════════════════════════════════════╝
+
+📊 SYSTEM STATUS
+├─ Health Check:        curl http://localhost:8000/health
+├─ Rate Limit Check:    curl http://localhost:8000/api/rate-limit/{user_id}
+├─ Trending Topics:     curl http://localhost:8000/api/trending
+└─ Database Count:      sqlite3 rag_database.db "SELECT COUNT(*) FROM articles;"
+
+🧪 TESTING
+├─ Run Full Test Suite: python3 test_routine.py
+├─ Expected Result:     6/6 tests passing (100%)
+└─ Test Coverage:       Health, DB, RAG, Streaming, Rate Limit, Trending
+
+🔄 RESTART SERVICES
+├─ API Server:          pkill -f api_server && python3 api_server.py > api_server_new.log 2>&1 &
+├─ Docker Worker:       docker-compose -f docker-compose.rag.yml restart worker
+├─ Full Stack:          docker-compose -f docker-compose.rag.yml restart
+└─ Next.js Frontend:    cd web && npm run dev
+
+📦 DOCKER COMMANDS
+├─ View Logs:           docker logs llm_worker_rag -f
+├─ Database Sync:       docker cp llm_worker_rag:/app/data/rag_database.db ./
+└─ Copy Files:          docker cp {file} llm_worker_rag:/app/
+
+🎯 KEY FEATURES
+├─ Rate Limit:          50 questions per hour per user
+├─ Database:            Synced between local and Docker (176 articles)
+├─ Trending:            Tracks queries in 24-hour window
+├─ Pagination:          20 articles per page (Knowledge Management)
+├─ FAISS Cache:         Persistent disk caching for instant startup
+└─ Health Monitor:      RabbitMQ, Ollama, Database status
+
+🌐 ENDPOINTS
+├─ Frontend:            http://localhost:3000
+├─ API Server:          http://localhost:8000
+├─ Ollama:              http://localhost:11434
+├─ RabbitMQ:            http://localhost:15672 (admin:admin123)
+└─ Health Check:        http://localhost:8000/health
+
+📁 KEY FILES
+├─ api_server.py        Main API with rate limiting & trending
+├─ rate_limiter.py      Rate limiting logic (50/hour)
+├─ trending.py          Trending topics tracker (24h)
+├─ test_routine.py      Automated test suite
+├─ app/rag_system.py    RAG with FAISS caching
+├─ web/app/page.tsx     Main chat interface
+└─ docker-compose.rag.yml Docker orchestration
+
+⚠️  TROUBLESHOOTING
+├─ DB out of sync?      Check docker-compose.rag.yml volumes
+├─ FAISS slow?          Delete faiss_index.bin to rebuild with IVF
+├─ Rate limit hit?      Check /api/rate-limit/{user_id} for reset time
+├─ Import errors?       Ensure rate_limiter.py and trending.py in root
+└─ Tests failing?       Run: curl http://localhost:8000/health
+
+✅ VERIFICATION CHECKLIST
+☑ API server running on port 8000
+☑ Frontend running on port 3000
+☑ Database has 176 articles
+☑ Health endpoint returns "healthy"
+☑ Trending endpoint returns queries
+☑ Rate limit endpoint returns 50/50
+☑ Test suite passes 6/6 tests
+
+🎉 ALL SYSTEMS OPERATIONAL!

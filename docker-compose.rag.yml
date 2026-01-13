@@ -1,0 +1,123 @@
+# Docker Compose for RAG-enabled LLM system
+# Includes: RabbitMQ, Ollama, RAG Worker, RSS Feed Updater
+
+services:
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"    # AMQP port
+      - "15672:15672"  # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-admin}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS:-admin123}  # ⚠️ Change in production via .env file
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - llm_network
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama_server
+    ports:
+      - "11434:11434"
+    volumes:
+      - ${HOME}/.ollama:/root/.ollama
+    environment:
+      - OLLAMA_NUM_GPU=1
+      - OLLAMA_KEEP_ALIVE=5m
+    networks:
+      - llm_network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: llm_worker_rag
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=${RABBITMQ_USER:-admin}
+      - RABBITMQ_PASS=${RABBITMQ_PASS:-admin123}  # ⚠️ Change in production via .env file
+      - OLLAMA_URL=http://ollama:11434
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-qwen2.5:1.5b}
+      - PYTHONDONTWRITEBYTECODE=1
+      # NEW: OpenRouter configuration for faster testing (optional)
+      - USE_OPENROUTER=${USE_OPENROUTER:-true}  # If key missing or provider errors, worker auto-falls back to Ollama
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}  # Set this in your shell or .env (do NOT hardcode keys here)
+      - OPENROUTER_MODEL=${OPENROUTER_MODEL:-google/gemini-2.0-flash-exp:free}
+      # RAG Configuration
+      - RAG_DB_PATH=/app/data/rag_database.db
+      - HF_HOME=/app/.hf_cache
+      - TRANSFORMERS_CACHE=/app/.hf_cache
+      - EMBEDDING_MODEL=${EMBEDDING_MODEL:-BAAI/bge-m3}
+      - RAG_USE_HYBRID=${RAG_USE_HYBRID:-false}  # Disabled for speed
+      - RAG_USE_RERANK=${RAG_USE_RERANK:-true}  # Enabled with optimizations
+      - RAG_RERANK_MAX=${RAG_RERANK_MAX:-12}  # Max results to rerank (optimized)
+      - RAG_MIN_SIMILARITY=${RAG_MIN_SIMILARITY:-0.3}
+      - RAG_MAX_ARTICLES_TO_CHECK=${RAG_MAX_ARTICLES_TO_CHECK:-100}  # Limit to recent 100 articles
+      # Enhanced Search Features
+      - USE_FAST_CLASSIFIER=${USE_FAST_CLASSIFIER:-false}  # Fast query classification
+      - USE_MULTI_QUERY=${USE_MULTI_QUERY:-true}  # Multi-query retrieval
+    volumes:
+      - ./rag_database.db:/app/data/rag_database.db
+      - ./app/worker_rag.py:/app/app/worker_rag.py
+      - ./app/worker_ollama.py:/app/app/worker_ollama.py
+      - ./app/rag_system.py:/app/app/rag_system.py
+      - ./rate_limiter.py:/app/rate_limiter.py
+      - ./trending.py:/app/trending.py
+      - ./app/prompts:/app/app/prompts
+      - ./utils/update_rss_periodic.py:/app/update_rss_periodic.py
+      - hf_cache:/app/.hf_cache
+    networks:
+      - llm_network
+    depends_on:
+      - rabbitmq
+      - ollama
+    restart: unless-stopped
+
+  rag_updater:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: rag_updater
+    environment:
+      - RAG_DB_PATH=/app/data/rag_database.db
+      - OLLAMA_URL=http://ollama:11434
+      - PYTHONDONTWRITEBYTECODE=1
+      - HF_HOME=/app/.hf_cache
+      - TRANSFORMERS_CACHE=/app/.hf_cache
+      - EMBEDDING_MODEL=${EMBEDDING_MODEL:-BAAI/bge-m3}
+      # Reliable RSS Feeds
+      - RSS_FEEDS=https://rthk9.rthk.hk/rthk/news/rss/c_expressnews_clocal.xml,https://rthk9.rthk.hk/rthk/news/rss/c_expressnews_cfinance.xml,https://plink.anyfeeder.com/zaobao/realtime/china,https://www.bbc.com/zhongwen/simp/index.xml,https://sspai.com/feed,https://www.ifanr.com/feed,https://36kr.com/feed,https://rsshub.app/wallstreetcn/news
+      - RSS_UPDATE_INTERVAL=600  # Update every 10 minutes
+    volumes:
+      - ./rag_database.db:/app/data/rag_database.db
+      - ./app/rag_system.py:/app/app/rag_system.py
+      - ./app/prompts:/app/app/prompts
+      - ./utils/update_rss_periodic.py:/app/update_rss_periodic.py
+      - hf_cache:/app/.hf_cache
+    command: python update_rss_periodic.py
+    networks:
+      - llm_network
+    depends_on:
+      - ollama
+    restart: unless-stopped  # Run continuously with periodic updates
+
+volumes:
+  rabbitmq_data:
+  ollama_data:
+  rag_data:
+  hf_cache:
+
+networks:
+  llm_network:
+    driver: bridge

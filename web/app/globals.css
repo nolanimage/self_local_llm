@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 255, 255, 255;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: white;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #000000;
+  }
+}
+
+/* Custom styles for our agent interface */
+.prose {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: inherit;
+}
+
+.dark .prose {
+  color: #ffffff;
+}
+
+.prose code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.prose p {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.prose pre {
+  padding: 0;
+  margin: 0;
+  background: transparent;
+}
+
+.prose ul, .prose ol {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding-left: 1.5rem;
+}
+
+.prose li {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+/* Clean scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 10px;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #374151;
+}
+
+/* Transitions */
+* {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
