@@ -263,10 +263,9 @@ Response:
 
 ### Vercel (Recommended)
 
-1. Push code to GitHub
-2. Import project in Vercel
-3. Set environment variables in Vercel dashboard
-4. Deploy
+1. Import project in Vercel
+2. Set environment variables in Vercel dashboard
+3. Deploy
 
 ### Docker
 
