@@ -1,47 +1,73 @@
-# Models directory (too large for git)
-models/
 
+# API keys and secrets (if accidentally committed)
+# Backup directories
+# Database files
+# Docker volumes and data
+# Environment and config files with secrets
+# Environment variables
+# IDE
+# Logs
+# Models directory (too large for git)
+# OS
 # Python
-__pycache__/
-*.py[cod]
+# Temporary files
+# Test data
+# Virtual environments
 *$py.class
+*.backup
+*.bak
+*.db
+*.db-shm
+*.db-wal
+*.egg
+*.egg-info/
+*.env.backup
+*.log
+*.log.*
+*.py[cod]
 *.so
+*.sqlite
+*.sqlite3
+*.swo
+*.swp
+*.temp
+*.tmp
+*_key*
+*_password*node_modules/
+*_secret*
+*~
+.DS_Store
 .Python
+.eggs/
+.env
+.env.*.local
+.env.local
+.idea/
+.installed.cfg
+.next/
+.venv
+.vscode/
+ENV/
+Thumbs.db
+__pycache__/
+backup_*/
 build/
+config.env
 develop-eggs/
 dist/
+docker-data/
 downloads/
 eggs/
-.eggs/
+env/
 lib/
 lib64/
+models/
 parts/
 sdist/
+test_articles.json
 var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Virtual environments
 venv/
-ENV/
-env/
-.venv
-
-# Environment variables
-.env
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
+volumes/
+web/.next/
+web/node_modules/
+wheels/
